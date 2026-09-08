@@ -1,0 +1,6 @@
+{
+  "name": "FactFusion Hub",
+  "description": "Comprehensive Educational Portal and School Management System for FactFusion Hub featuring multimodal Gemini AI tools, bilingual Nepali-English support, and administrative management.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is an authenticated Admin
+    function isAdmin() {
+      return request.auth != null && 
+        (request.auth.token.role == 'Super Administrator' || request.auth.token.role == 'Admissions Officer');
+    }
+
+    // PendingApplications Collection Rules
+    match /PendingApplications/{appId} {
+      // 1. Unauthenticated / Public Applicants can create pending leads with validation
+      allow create: if request.resource.data.fullName is string
+                    && request.resource.data.fullName.size() >= 2
+                    && request.resource.data.phoneNumber is string
+                    && request.resource.data.phoneNumber.size() >= 7
+                    && request.resource.data.emailAddress is string
+                    && request.resource.data.classGradeSelection is string
+                    && request.resource.data.status == 'Pending';
+                    
+      // 2. Only authenticated Super Administrators and Admissions Officers can read or update
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Notifications Collection Rules
+    match /Notifications/{notifId} {
+      // Only authenticated Administrators can read, update, or manage notification alerts
+      allow read, update, delete: if isAdmin();
+      // Cloud Functions write alerts via Admin SDK
+      allow create: if false; 
+    }
+
+    // Primary Active Students Collection Rules
+    match /Students/{studentId} {
+      // Only authenticated Administrators can create, update, or read active student records
+      allow read, create, update, delete: if isAdmin();
+    }
+  }
+}
